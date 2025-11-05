@@ -94,6 +94,9 @@ th {
     border-bottom: var(--bg) solid 3px;
     text-align: center;
     padding: 2px 4px 2px 4px;
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-sec);
 }
 
 td {
@@ -125,6 +128,17 @@ td {
     white-space: preserve-spaces;
     background-color: orangered;
 }
+
+@media (width <= 900px) {
+    .oct,.url,.cec {
+        display: none;
+    }
+}
+@media (width <= 600px) {
+    .html {
+        display: none;
+    }
+}
     </style>
 </head>
 <body class="bg">
@@ -135,12 +149,12 @@ td {
             <thead>
                 <tr>
                     <th>Decimal</th>
-                    <th>Octal</th>
+                    <th class="oct">Octal</th>
                     <th>Hexadecimal</th>
                     <th>Symbol</th>
-                    <th>HTML</th>
-                    <th>URL</th>
-                    <th>C escape code</th>
+                    <th class="html">HTML</th>
+                    <th class="url">URL</th>
+                    <th class="cec">C escape code</th>
                     <th>Name</th>
                 </tr>
             </thead>
@@ -483,12 +497,12 @@ td {
             <thead>
                 <tr>
                     <th>Decimal</th>
-                    <th>Octal</th>
+                    <th class="oct">Octal</th>
                     <th>Hexadecimal</th>
                     <th>Symbol</th>
-                    <th>HTML</th>
-                    <th>URL</th>
-                    <th>C escape code</th>
+                    <th class="html">HTML</th>
+                    <th class="url">URL</th>
+                    <th class="cec">C escape code</th>
                     <th>Name</th>
                 </tr>
             </thead>
