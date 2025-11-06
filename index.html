@@ -1759,7 +1759,6 @@ function encodeBase64() {
     }
 
     base64EncodeFileInput.files?.[0]?.bytes().then(b => {
-        console.log(base64EncodeFileInput.files?.[0]);
         input = b;
         if (input) {
             base64EncodeOutput.innerText = input.toBase64();
