@@ -1728,7 +1728,7 @@ function decodeBase64() {
             base64DecodeOutput.innerHTML = `<a style="cursor: pointer; padding: 10px; background: var(--bg-acc); display: inline-block;" target="_blank" href="${blobUrl}">Download file</a>`;
         } break;
         case 'image': {
-            base64DecodeOutput.innerHTML = `<img style="max-width: 100%;" src="${blobUrl}">`;
+            base64DecodeOutput.innerHTML = `<img style="max-width: 100%; object-fit: contain;" src="${blobUrl}">`;
             base64DecodeOutput.style.display = 'flex';
             base64DecodeOutput.style.justifyContent = 'center';
         } break;
