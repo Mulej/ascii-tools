@@ -1733,7 +1733,7 @@ function decodeBase64() {
             base64DecodeOutput.style.justifyContent = 'center';
         } break;
         case 'embed': {
-            base64DecodeOutput.innerHTML = `<iframe src="${blobUrl}" style="width: 100%; height: 50vh;" sandbox="allow-same-origin"></iframe>`;
+            base64DecodeOutput.innerHTML = `<iframe src="${blobUrl}" style="width: 100%; height: 50vh; border: none;"></iframe>`;
             base64DecodeOutput.style.display = 'flex';
             base64DecodeOutput.style.justifyContent = 'center';
             base64DecodeOutput.children[0].contentWindow.document.body.style.background = getComputedStyle(base64DecodeOutput)['background-color'];
