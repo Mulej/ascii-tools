@@ -1758,7 +1758,8 @@ function encodeBase64() {
         return;
     }
 
-    base64EncodeFileInput.files?.[0]?.bytes().then(b => {
+    base64EncodeFileInput.files?.[0]?.arrayBuffer().then(buf => {
+        b = new Uint8Array(buf);
         input = b;
         if (input) {
             base64EncodeOutput.innerText = input.toBase64();
