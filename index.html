@@ -1569,27 +1569,23 @@ input[type="file"] {
             <span>Input:</span>
             <textarea id="base64DecodeInput" placeholder="Base64 to decode."></textarea>
             <input type="button" onclick="decodeBase64()" value="Decode" />
-            <div>Output:</div>
-            <div class="base64Output bg-sec" id="base64DecodeOutput"></div>
+            <div style="display:flex;justify-content:space-between">
+                <span>Output:</span>
+                <input disabled id="copyBase64Decode" type="button" onclick="navigator.clipboard.write([new ClipboardItem({'text/plain': base64DecodeOutput.innerText})]);" value="Copy" />
+            </div>
+            <div class="base64Output bg-sec" id="base64DecodeOutput" onclick="const r=document.createRange();r.selectNodeContents(this);const s=window.getSelection();s.removeAllRanges();s.addRange(r)"></div>
             <br>
             <h3>Base64 encode</h3>
             <span>Input:</span>
             <textarea id="base64EncodeInput" placeholder="Text to encode, or select a file below."></textarea>
-            <input class="my" type="file" id="base64EncodeFileInput" />
+            <input class="my" type="file" id="base64EncodeFileInput" oninput="base64EncodeInput.value=''" />
             <input type="button" onclick="encodeBase64()" value="Encode" />
-            <div>Output:</div>
-            <div class="base64Output bg-sec" id="base64EncodeOutput"></div>
-        </div>
-        <div class="tab json bg-sec" style="width: 100%; height: 20vh;">
-            json
-        </div>
-        <div class="tab other bg-sec" style="width: 100%; height: 20vh;">
-            other
-        </div>
-        <div style="height: 10rem;"></div>
-    </div>
-</body>
-<script>
+            <div style="display:flex;justify-content:space-between">
+                <span>Output:</span>
+                <input disabled id="copyBase64Encode" type="button" onclick="navigator.clipboard.write([new ClipboardItem({'text/plain': base64EncodeOutput.innerText})]);" value="Copy" />
+            </div>
+            <div class="base64Output bg-sec" id="base64EncodeOutput" onclick="const r=document.createRange();r.selectNodeContents(this);const s=window.getSelection();s.removeAllRanges();s.addRange(r)"></div>
+            <script>
 const fileMagic = [{
     bytes: [{ o: 0, a: new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]) }],
     name: 'PNG',
@@ -1690,6 +1686,7 @@ function decodeBase64() {
     base64DecodeOutput.style.justifyContent = '';
     base64DecodeOutput.innerText = '';
     base64DecodeOutput.innerHTML = '';
+    copyBase64Decode.disabled = true;
 
     let input = base64DecodeInput.value;
     if (input.startsWith('data:')) {
@@ -1703,11 +1700,14 @@ function decodeBase64() {
         const string = td.decode(u8arr);
         base64DecodeOutput.innerText = string;
         base64DecodeOutput.style.fontFamily = 'monospace';
+        copyBase64Decode.disabled = false;
         return;
     } catch {}
 
     let displayType = 'download';
     let info;
+
+    const blob = new Blob([u8arr]);
 
     for (const fm of fileMagic) {
         if (fm.bytes.every(x => u8arr.slice(x.o, x.o + x.a.length).every((y, i) => y === x.a[i]))) {
@@ -1716,8 +1716,6 @@ function decodeBase64() {
             break;
         }
     }
-
-    const blob = new Blob([u8arr]);
 
     const blobUrl = URL.createObjectURL(blob);
 
@@ -1745,6 +1743,7 @@ function encodeBase64() {
     base64EncodeOutput.style.fontFamily = '';
     base64EncodeOutput.innerText = '';
     base64EncodeOutput.innerHTML = '';
+    copyBase64Encode.disabled = true;
 
     let input = base64EncodeInput.value;
     if (input) {
@@ -1755,6 +1754,7 @@ function encodeBase64() {
 
         base64EncodeOutput.innerText = base64;
         base64EncodeOutput.style.fontFamily = 'monospace';
+        copyBase64Encode.disabled = false;
         return;
     }
 
@@ -1764,8 +1764,19 @@ function encodeBase64() {
         if (input) {
             base64EncodeOutput.innerText = input.toBase64();
             base64EncodeOutput.style.fontFamily = 'monospace';
+            copyBase64Encode.disabled = false;
         }
     });
 }
-</script>
+            </script>
+        </div>
+        <div class="tab json bg-sec" style="width: 100%; height: 20vh;">
+            json
+        </div>
+        <div class="tab other bg-sec" style="width: 100%; height: 20vh;">
+            other
+        </div>
+        <div style="height: 10rem;"></div>
+    </div>
+</body>
 </html>
