@@ -197,7 +197,8 @@ textarea {
     background-color: var(--bg-sec);
     resize: none;
     height: 3;
-    line-height: 1;
+    line-height: 1.2;
+    font-family: monospace;
 }
 
 .base64Output {
@@ -235,7 +236,7 @@ input[type="file"] {
 </head>
 <body class="bg">
     <div class="main">
-        <div style="height: 5rem;"></div>
+        <div style="height: 5rem"></div>
         <input class="tab-opt" type="radio" id="ascii-table" name="main-nav" value="ascii-table" checked />
         <input class="tab-opt" type="radio" id="base64" name="main-nav" value="base64" />
         <input class="tab-opt" type="radio" id="json" name="main-nav" value="json" />
@@ -243,10 +244,10 @@ input[type="file"] {
         <nav class="main-nav">
             <label for="ascii-table">ASCII Table</label>
             <label for="base64">Base64</label>
-            <!-- <label for="json">JSON</label>
-            <label for="other">Other</label> -->
+            <label for="json">JSON</label>
+            <!-- <label for="other">Other</label> -->
         </nav>
-        <div style="height: 5rem;"></div>
+        <div style="height: 5rem"></div>
         <div class="tab ascii-table">
             <h3>Control Characters</h3>
             <table class="bg-sec">
@@ -1569,9 +1570,9 @@ input[type="file"] {
             <span>Input:</span>
             <textarea id="base64DecodeInput" placeholder="Base64 to decode."></textarea>
             <input type="button" onclick="decodeBase64()" value="Decode" />
-            <div style="display:flex;justify-content:space-between">
+            <div style="display:flex;justify-content:space-between;align-items:center">
                 <span>Output:</span>
-                <input disabled id="copyBase64Decode" type="button" onclick="navigator.clipboard.write([new ClipboardItem({'text/plain': base64DecodeOutput.innerText})]);" value="Copy" />
+                <input disabled id="copyBase64Decode" type="button" onclick="navigator.clipboard.write([new ClipboardItem({'text/plain': base64DecodeOutput.innerText})])" value="Copy" />
             </div>
             <div class="base64Output bg-sec" id="base64DecodeOutput" onclick="const r=document.createRange();r.selectNodeContents(this);const s=window.getSelection();s.removeAllRanges();s.addRange(r)"></div>
             <br>
@@ -1580,9 +1581,9 @@ input[type="file"] {
             <textarea id="base64EncodeInput" placeholder="Text to encode, or select a file below."></textarea>
             <input class="my" type="file" id="base64EncodeFileInput" oninput="base64EncodeInput.value=''" />
             <input type="button" onclick="encodeBase64()" value="Encode" />
-            <div style="display:flex;justify-content:space-between">
+            <div style="display:flex;justify-content:space-between;align-items:center">
                 <span>Output:</span>
-                <input disabled id="copyBase64Encode" type="button" onclick="navigator.clipboard.write([new ClipboardItem({'text/plain': base64EncodeOutput.innerText})]);" value="Copy" />
+                <input disabled id="copyBase64Encode" type="button" onclick="navigator.clipboard.write([new ClipboardItem({'text/plain': base64EncodeOutput.innerText})])" value="Copy" />
             </div>
             <div class="base64Output bg-sec" id="base64EncodeOutput" onclick="const r=document.createRange();r.selectNodeContents(this);const s=window.getSelection();s.removeAllRanges();s.addRange(r)"></div>
             <script>
@@ -1723,15 +1724,15 @@ function decodeBase64() {
         case 'download': {
             base64DecodeOutput.style.textAlign = 'center';
             base64DecodeOutput.style.alignContent = 'center';
-            base64DecodeOutput.innerHTML = `<a style="cursor: pointer; padding: 10px; background: var(--bg-acc); display: inline-block;" target="_blank" href="${blobUrl}">Download file</a>`;
+            base64DecodeOutput.innerHTML = `<a style="cursor: pointer; padding: 10px; background: var(--bg-acc); display: inline-block" target="_blank" href="${blobUrl}">Download file</a>`;
         } break;
         case 'image': {
-            base64DecodeOutput.innerHTML = `<img style="max-width: 100%; object-fit: contain;" src="${blobUrl}">`;
+            base64DecodeOutput.innerHTML = `<img style="max-width: 100%; object-fit: contain" src="${blobUrl}">`;
             base64DecodeOutput.style.display = 'flex';
             base64DecodeOutput.style.justifyContent = 'center';
         } break;
         case 'embed': {
-            base64DecodeOutput.innerHTML = `<iframe src="${blobUrl}" style="width: 100%; height: 50vh; border: none;"></iframe>`;
+            base64DecodeOutput.innerHTML = `<iframe src="${blobUrl}" style="width: 100%; height: 50vh; border: none"></iframe>`;
             base64DecodeOutput.style.display = 'flex';
             base64DecodeOutput.style.justifyContent = 'center';
             base64DecodeOutput.children[0].contentWindow.document.body.style.background = getComputedStyle(base64DecodeOutput)['background-color'];
@@ -1770,13 +1771,32 @@ function encodeBase64() {
 }
             </script>
         </div>
-        <div class="tab json bg-sec" style="width: 100%; height: 20vh;">
-            json
+        <div class="tab json">
+            <h3>JSON format</h3>
+            <span>Input:</span>
+            <textarea style="height:30rem;resize:vertical" id="jsonFormatInput" placeholder="JSON input/output"></textarea>
+
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                    <input type="button" onclick="jsonFormatInput.value=JSON.stringify(eval(jsonFormatInput.value), null, jsonFormatSpacing.value)" value="Format" />
+
+                    <label style="margin-left:1rem" for="jsonFormatSpacing">Indentation:</label>
+                    <select id="jsonFormatSpacing">
+                        <option value="">None</option>
+                        <option value="  ">2 spaces</option>
+                        <option value="    " selected>4 spaces</option>
+                        <option value="        ">8 spaces</option>
+                        <option value="&#9;">Tab</option>
+                    </select>
+                </div>
+                <input type="button" onclick="navigator.clipboard.write([new ClipboardItem({'text/plain':jsonFormatInput.value})])" value="Copy" />
+            </div>
+
         </div>
-        <div class="tab other bg-sec" style="width: 100%; height: 20vh;">
+        <div class="tab other bg-sec" style="width:100%; height:20vh">
             other
         </div>
-        <div style="height: 10rem;"></div>
+        <div style="height:10rem"></div>
     </div>
 </body>
 </html>
