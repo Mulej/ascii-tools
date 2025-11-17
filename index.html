@@ -1740,8 +1740,10 @@ function decodeBase64() {
             base64DecodeOutput.innerHTML = `<object data="${blobUrl}" style="width: 100%; height: 50vh; border: none"></object>`;
             base64DecodeOutput.style.display = 'flex';
             base64DecodeOutput.style.justifyContent = 'center';
-            base64DecodeOutput.children[0].contentWindow.document.body.style.background = getComputedStyle(base64DecodeOutput)['background-color'];
-            base64DecodeOutput.children[0].contentWindow.onload = () => base64DecodeOutput.children[0].contentWindow.document.body.style.background = getComputedStyle(base64DecodeOutput)['background-color'];
+            setTimeout(() => {
+                base64DecodeOutput.children[0].contentWindow.document.body.style.background = getComputedStyle(base64DecodeOutput)['background-color'];
+                base64DecodeOutput.children[0].contentWindow.onload = () => base64DecodeOutput.children[0].contentWindow.document.body.style.background = getComputedStyle(base64DecodeOutput)['background-color'];
+            }, 1);
         } break;
     }
 }
