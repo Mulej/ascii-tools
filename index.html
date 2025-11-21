@@ -1807,48 +1807,6 @@ function encodeBase64() {
                 </div>
                 <input type="button" onclick="navigator.clipboard.write([new ClipboardItem({'text/plain':jsonFormatInput.value})])" value="Copy" />
             </div>
-            <br>
-            <br>
-            <h3>JSON semantic diff</h3>
-            <span>Input:</span>
-            <div style="display:flex;gap:1rem;">
-                <textarea style="height:30rem;resize:vertical" id="jsonDiffInputLeft" placeholder="JSON to compare"></textarea>
-                <textarea style="height:30rem;resize:vertical" id="jsonDiffInputRight" placeholder="JSON to compare"></textarea>
-            </div>
-
-            <input type="button" onclick="" value="Compare" onclick="jsonDiff()" />
-            <div>
-                <span>Output:</span>
-            </div>
-            <div style="display:flex;gap:1rem;">
-                <div class="output bg-sec" id="jsonDiffOutputLeft"></div>
-                <div class="output bg-sec" id="jsonDiffOutputRight"></div>
-            </div>
-            <script>
-function jsonDiff() {
-    const left = eval('a='+jsonDiffInputLeft.value+';a');
-    const right = eval('a='+jsonDiffInputRight.value+';a');
-
-    function compare(left, right) {
-        if (left === right) {
-            return false;
-        }
-
-        const typeLeft  = typeof left;
-        const typeRight = typeof right;
-        const arrayLeft  = Array.isArray(left);
-        const arrayRight = Array.isArray(right);
-
-        if (typeLeft !== typeRight || arrayLeft !== arrayRight) {
-            return 'type-diff';
-        }
-
-
-
-        return false;
-    }
-}
-            </script>
         </div>
         <div class="tab other bg-sec" style="width:100%;height:20vh">
             other
