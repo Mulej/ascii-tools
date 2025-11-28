@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="color-scheme" content="dark light">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="application-name" content="ASCII table">
     <meta name="keywords" content="ascii, ascii table, ascii code, codes, characters, symbols, html, printable, keyboard, html codes, url codes, base64, base64 encode, base64 decode">
@@ -60,23 +61,44 @@ h1, h2, h3, h4, h5, h6 {
 
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark light;
 
   --light-bg: #ededed;
   --light-bg-sec: #dddddd;
   --light-bg-acc: #b7b7b7;
   --light-txt-clr: #121212;
 
+  --light-diff-change: #002244;
+  --light-diff-change-bg: #00ccff60;
+  --light-diff-missing: #442222;
+  --light-diff-missing-bg: #ff000060;
+  --light-diff-added: #224422;
+  --light-diff-added-bg: #00ff0060;
+
   --dark-bg: #1d1d1d;
   --dark-bg-sec: #2a2a2a;
   --dark-bg-acc: #404040;
   --dark-txt-clr: #ededed;
+
+  --dark-diff-change: #00eeff;
+  --dark-diff-change-bg: #00335560;
+  --dark-diff-missing: #ff0000;
+  --dark-diff-missing-bg: #44222260;
+  --dark-diff-added: #00ff00;
+  --dark-diff-added-bg: #22442260;
 
   --bg: light-dark(var(--light-bg), var(--dark-bg));
   --bg-sec: light-dark(var(--light-bg-sec), var(--dark-bg-sec));
   --bg-acc: light-dark(var(--light-bg-acc), var(--dark-bg-acc));
 
   --txt-clr: light-dark(var(--light-txt-clr), var(--dark-txt-clr));
+
+  --diff-change: light-dark(var(--light-diff-change), var(--dark-diff-change));
+  --diff-change-bg: light-dark(var(--light-diff-change-bg), var(--dark-diff-change-bg));
+  --diff-missing: light-dark(var(--light-diff-missing), var(--dark-diff-missing));
+  --diff-missing-bg: light-dark(var(--light-diff-missing-bg), var(--dark-diff-missing-bg));
+  --diff-added: light-dark(var(--light-diff-added), var(--dark-diff-added));
+  --diff-added-bg: light-dark(var(--light-diff-added-bg), var(--dark-diff-added-bg));
 }
 
 .bg {
@@ -184,12 +206,14 @@ input[name="main-nav"][value="other"]:checked ~ .main-nav label[for="other"] {
     display: flex;
     justify-content: space-between;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .main-nav label {
     user-select: none;
     background-color: var(--bg-sec);
     flex-grow: 1;
+    flex-basis: 20%;
     text-align: center;
     padding: 4px 0 4px 0;
     cursor: pointer;
@@ -362,7 +386,7 @@ input[type="file"] {
                         <td class="dec">9</td>
                         <td class="oct">0o11</td>
                         <td class="hex">0x09</td>
-                        <td class="sym">"<span>&#9;</span> "(HT)</td>
+                        <td class="sym">"<span>&#9;</span>" (HT)</td>
                         <td class="html">&amp;#9;</td>
                         <td class="url">%09</td>
                         <td class="cec">\t</td>
@@ -1807,6 +1831,296 @@ function encodeBase64() {
                 </div>
                 <input type="button" onclick="navigator.clipboard.write([new ClipboardItem({'text/plain':jsonFormatInput.value})])" value="Copy" />
             </div>
+            <br>
+            <br>
+            <h3>JSON semantic diff</h3>
+            <span>Input:</span>
+            <div style="display:flex;gap:1rem;">
+                <textarea style="height:30rem;resize:vertical" id="jsonDiffInputLeft" placeholder="JSON to compare"></textarea>
+                <textarea style="height:30rem;resize:vertical" id="jsonDiffInputRight" placeholder="JSON to compare"></textarea>
+            </div>
+
+            <input type="button" value="Compare" onclick="jsonDiff()" />
+            <div>
+                <span>Output:</span>
+                <input type="button" value="Next change" onclick="nextChange()">
+                <input type="button" value="Prev change" onclick="prevChange()">
+                <script>
+let changeId = 0;
+function nextChange() {
+    const id = `jsonDiff${++changeId}Left`;
+    const elem = document.getElementById(id);
+    if (!elem) {
+        if (changeId > 0) {
+            --changeId;
+        }
+        return;
+    }
+    activeDiffElem=jsonDiffOutputLeft;
+    elem.scrollIntoView({behavior:'smooth',block:'center'});
+    elem.focus();
+}
+function prevChange() {
+    const id = `jsonDiff${--changeId}Left`;
+    const elem = document.getElementById(id);
+    if (!elem) {
+        if (changeId < 0) {
+            ++changeId;
+        }
+        return;
+    }
+    activeDiffElem=jsonDiffOutputLeft;
+    elem.scrollIntoView({behavior:'smooth',block:'center'});
+    elem.focus();
+}
+                </script>
+            </div>
+            <div style="display:flex;gap:1rem;">
+                <style>
+.diff-focus:focus {
+    outline: light-dark(blue, orange) solid 2px;
+}
+                </style>
+                <script>
+let activeDiffElem;
+                </script>
+                <div class="output bg-sec" style="white-space:pre;line-height:1.2" id="jsonDiffOutputLeft"  onmouseenter="activeDiffElem=this" onscroll="activeDiffElem===this && (jsonDiffOutputRight.scrollTop=this.scrollTop,jsonDiffOutputRight.scrollLeft=this.scrollLeft)"></div>
+                <div class="output bg-sec" style="white-space:pre;line-height:1.2" id="jsonDiffOutputRight" onmouseenter="activeDiffElem=this" onscroll="activeDiffElem===this && (jsonDiffOutputLeft .scrollTop=this.scrollTop,jsonDiffOutputLeft .scrollLeft=this.scrollLeft)"></div>
+            </div>
+            <script>
+function jsonDiff() {
+    const right = eval('a='+jsonDiffInputRight.value+';a');
+    const left = eval('a='+jsonDiffInputLeft.value+';a');
+
+    function compare(left, right) {
+        const typeLeft  = typeof left;
+        const typeRight = typeof right;
+        const arrayLeft  = Array.isArray(left);
+        const arrayRight = Array.isArray(right);
+        const nullLeft  = left === null;
+        const nullRight = right === null;
+
+        if (typeLeft !== typeRight || arrayLeft !== arrayRight || nullLeft !== nullRight) {
+            return 'type-diff';
+        }
+
+        if (arrayLeft) {
+            const out = [];
+            let diff = false;
+
+            for (let i=0; i<Math.max(left.length, right.length); ++i) {
+                if (i >= left.length) {
+                    out.push('missing-left');
+                    diff = true;
+                    continue;
+                }
+                if (i >= right.length) {
+                    out.push('missing-right');
+                    diff = true;
+                    continue;
+                }
+                const result = compare(left[i], right[i]);
+                diff ||= !!result;
+                out.push(result);
+            }
+
+            return diff && out;
+        }
+
+        if (typeLeft === 'object' && !nullLeft) {
+            const keysLeft  = new Set(Object.keys(left));
+            const keysRight = new Set(Object.keys(right));
+            const keysAll = keysLeft.union(keysRight);
+            const keysAllArr = Array.from(keysAll.keys()).sort((a,b)=>a.localeCompare(b));
+            const out = {};
+            let diff = false;
+
+            for (let i=0; i<keysAllArr.length; ++i) {
+                const key = keysAllArr[i];
+                if (!keysLeft.has(key)) {
+                    out[key] = 'missing-left';
+                    diff = true;
+                    continue;
+                }
+                if (!keysRight.has(key)) {
+                    out[key] = 'missing-right';
+                    diff = true;
+                    continue;
+                }
+                const result = compare(left[key], right[key]);
+                diff ||= !!result;
+                out[key] = result;
+            }
+
+            return diff && out;
+        }
+
+        if (typeLeft === 'number') {
+            return left !== right;
+        }
+
+        if (typeLeft === 'string') {
+            return left !== right;
+        }
+
+        if (typeLeft === 'boolean') {
+            return left !== right;
+        }
+
+        return false;
+    }
+
+    function safeEscape(string) {
+        return string.replaceAll("&","&amp;").replaceAll("<","&lt;");
+    }
+
+    let diffId = 0;
+
+    function printDiff(left, right, diff, indentation) {
+        const indentationString = Array(indentation*4).fill('&nbsp;').join('');
+        if (diff === false) {
+            const leftString  = safeEscape(JSON.stringify(left , null, 4));
+            const rightString = safeEscape(JSON.stringify(right, null, 4));
+            return {
+                left : leftString .split('\n').map(s => indentationString + s).join('\n'),
+                right: rightString.split('\n').map(s => indentationString + s).join('\n'),
+            };
+        } else if (diff === true) {
+            const leftString  = safeEscape(JSON.stringify(left , null, 4));
+            const rightString = safeEscape(JSON.stringify(right, null, 4));
+            return {
+                left : leftString .split('\n').map(s => indentationString + s).join('\n'),
+                right: rightString.split('\n').map(s => indentationString + s).join('\n'),
+                leftStyle : 'color:var(--diff-change);background-color:var(--diff-change-bg);',
+                rightStyle: 'color:var(--diff-change);background-color:var(--diff-change-bg);',
+            };
+        } else if (diff === "type-diff") {
+            const leftString  = safeEscape(JSON.stringify(left , null, 4));
+            const rightString = safeEscape(JSON.stringify(right, null, 4));
+
+            const leftLines  = leftString .split('\n');
+            const rightLines = rightString.split('\n');
+
+            const linesMax = Math.max(leftLines.length, rightLines.length);
+            while (leftLines.length < linesMax) {
+                leftLines.push('');
+            }
+            while (rightLines.length < linesMax) {
+                rightLines.push('');
+            }
+            return {
+                left : leftLines .map(s => indentationString + s).join('\n'),
+                right: rightLines.map(s => indentationString + s).join('\n'),
+                leftStyle : 'color:var(--diff-change);background-color:var(--diff-change-bg);',
+                rightStyle: 'color:var(--diff-change);background-color:var(--diff-change-bg);',
+            };
+        } else if (diff === 'missing-left' || diff === "missing-right") {
+            const leftString  = diff === 'missing-left'  ? '' : safeEscape(JSON.stringify(left , null, 4));
+            const rightString = diff === 'missing-right' ? '' : safeEscape(JSON.stringify(right, null, 4));
+
+            const leftLines  = leftString .split('\n');
+            const rightLines = rightString.split('\n');
+
+            const linesMax = Math.max(leftLines.length, rightLines.length);
+            while (leftLines.length < linesMax) {
+                leftLines.push('');
+            }
+            while (rightLines.length < linesMax) {
+                rightLines.push('');
+            }
+            return {
+                left : leftLines .map(s => indentationString + s).join('\n'),
+                right: rightLines.map(s => indentationString + s).join('\n'),
+                leftStyle : diff === 'missing-left'  ? 'color:var(--diff-missing);background-color:var(--diff-missing-bg);' : 'color:var(--diff-added);background-color:var(--diff-added-bg);',
+                rightStyle: diff === 'missing-right' ? 'color:var(--diff-missing);background-color:var(--diff-missing-bg);' : 'color:var(--diff-added);background-color:var(--diff-added-bg);',
+            };
+        } else if (Array.isArray(diff)) {
+            const maxLength = Math.max(left.length, right.length);
+            let leftString  = '';
+            let rightString = '';
+
+            let lastLeft  = false;
+            let lastRight = false;
+
+            const indentationStringNext = Array((indentation+1)*4).fill('&nbsp;').join('');
+
+            for (let i=0; i<maxLength; ++i) {
+                const res = printDiff(left[i], right[i], diff[i], indentation+1);
+                let idString = '';
+                if (res.leftStyle) {
+                    idString = `jsonDiff${++diffId}`;
+                }
+                leftString  += `${leftString  ? (lastLeft  ? ',' : '') + '\n' : ''}<span ${idString ? 'tabindex="0" class="diff-focus" id="'+idString+'Left"'  : ''} style="font-family:monospace;white-space:pre;${res.leftStyle  || ''}">${res.left }</span>`;
+                rightString += `${rightString ? (lastRight ? ',' : '') + '\n' : ''}<span ${idString ? 'tabindex="0" class="diff-focus" id="'+idString+'Right"' : ''} style="font-family:monospace;white-space:pre;${res.rightStyle || ''}">${res.right}</span>`;
+                lastLeft  = res.left .replaceAll(/(\&nbsp;|\s)*/g, '');
+                lastRight = res.right.replaceAll(/(\&nbsp;|\s)*/g, '');
+            }
+
+            return {
+                left : indentationString + '[\n' + leftString  + '\n' + indentationString + ']',
+                right: indentationString + '[\n' + rightString + '\n' + indentationString + ']',
+            };
+        } else {
+            const keysLeft = new Set(Object.keys(left));
+            const keysRight = new Set(Object.keys(right));
+            const keysAll = keysLeft.union(keysRight);
+            const keysAllArr = Array.from(keysAll.keys());
+
+            let leftString  = '';
+            let rightString = '';
+
+            let lastLeft  = false;
+            let lastRight = false;
+
+            const indentationStringNext = Array((indentation+1)*4).fill('&nbsp;').join('');
+
+            for (let i=0; i<keysAllArr.length; ++i) {
+                const key=keysAllArr[i];
+                const res = printDiff(left[key], right[key], diff[key], indentation+1);
+
+                let idString = '';
+                if (res.leftStyle) {
+                    idString = `jsonDiff${++diffId}`;
+                }
+
+                const newLeft  = res.left .replaceAll(/(\&nbsp;|\s)*/g, '');
+                const newRight = res.right.replaceAll(/(\&nbsp;|\s)*/g, '');
+
+                leftString  += `${
+                    leftString  ? (lastLeft  ? ',' : '') + '\n' : ''
+                }<span ${idString ? 'tabindex="0" class="diff-focus" id="'+idString+'Left"'  : ''} style="font-family:monospace;white-space:pre;${
+                    res.leftStyle  || ''
+                }">${
+                    newLeft  ? indentationStringNext + safeEscape(JSON.stringify(key)) + ': ' + res.left .replace(/^(\&nbsp;)*/, '') : (res.left || indentationStringNext)
+                }</span>`;
+
+                rightString += `${
+                    rightString ? (lastRight ? ',' : '') + '\n' : ''
+                }<span ${idString ? 'tabindex="0" class="diff-focus" id="'+idString+'Right"' : ''} style="font-family:monospace;white-space:pre;${
+                    res.rightStyle || ''
+                }">${
+                    newRight ? indentationStringNext + safeEscape(JSON.stringify(key)) + ': ' + res.right.replace(/^(\&nbsp;)*/, '') : (res.right || indentationStringNext)
+                }</span>`;
+
+                lastLeft  = newLeft;
+                lastRight = newRight;
+            }
+
+            return {
+                left : indentationString + '{\n' + leftString  + '\n' + indentationString + '}',
+                right: indentationString + '{\n' + rightString + '\n' + indentationString + '}',
+            };
+        }
+    }
+
+    const diffRes = compare(left, right);
+
+    const output = printDiff(left, right, diffRes, 0);
+
+    jsonDiffOutputLeft.innerHTML  = `<span style="font-family:monospace;${output.leftStyle || ''}">${output.left}</span>`;
+    jsonDiffOutputRight.innerHTML = `<span style="font-family:monospace;${output.rightStyle || ''}">${output.right}</span>`;
+}
+            </script>
         </div>
         <div class="tab other bg-sec" style="width:100%;height:20vh">
             other
