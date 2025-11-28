@@ -1841,10 +1841,12 @@ function encodeBase64() {
             </div>
 
             <input type="button" value="Compare" onclick="jsonDiff()" />
-            <div>
+            <div style="display:flex;justify-content:space-between">
                 <span>Output:</span>
-                <input type="button" value="Next change" onclick="nextChange()">
-                <input type="button" value="Prev change" onclick="prevChange()">
+                <div>
+                    <input type="button" value="Next change" onclick="nextChange()">
+                    <input type="button" value="Prev change" onclick="prevChange()">
+                </div>
                 <script>
 let changeId = 0;
 function nextChange() {
