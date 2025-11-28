@@ -1850,44 +1850,54 @@ function encodeBase64() {
                 <script>
 let changeId = 0;
 function nextChange() {
-    const id = `jsonDiff${++changeId}Left`;
-    const elem = document.getElementById(id);
+    const id = `jsonDiff${++changeId}`;
+    const elem = document.getElementById(id+'Left');
     if (!elem) {
         if (changeId > 0) {
             --changeId;
         }
         return;
     }
+    document.querySelectorAll('.diff-focus').forEach(el => el.classList.remove('diff-focus'));
+
     activeDiffElem=jsonDiffOutputLeft;
     elem.scrollIntoView({behavior:'smooth',block:'center'});
-    elem.focus();
+
+    elem.classList.add('diff-focus');
+
+    document.getElementById(id+'Right').classList.add('diff-focus');
 }
 function prevChange() {
-    const id = `jsonDiff${--changeId}Left`;
-    const elem = document.getElementById(id);
+    const id = `jsonDiff${--changeId}`;
+    const elem = document.getElementById(id+'Left');
     if (!elem) {
         if (changeId < 0) {
             ++changeId;
         }
         return;
     }
+    document.querySelectorAll('.diff-focus').forEach(el => el.classList.remove('diff-focus'));
+
     activeDiffElem=jsonDiffOutputLeft;
     elem.scrollIntoView({behavior:'smooth',block:'center'});
-    elem.focus();
+
+    elem.classList.add('diff-focus');
+
+    document.getElementById(id+'Right').classList.add('diff-focus');
 }
                 </script>
             </div>
             <div style="display:flex;gap:1rem;">
                 <style>
-.diff-focus:focus {
+.diff-focus {
     outline: light-dark(blue, orange) solid 2px;
 }
                 </style>
                 <script>
 let activeDiffElem;
                 </script>
-                <div class="output bg-sec" style="white-space:pre;line-height:1.2" id="jsonDiffOutputLeft"  onmouseenter="activeDiffElem=this" onscroll="activeDiffElem===this && (jsonDiffOutputRight.scrollTop=this.scrollTop,jsonDiffOutputRight.scrollLeft=this.scrollLeft)"></div>
-                <div class="output bg-sec" style="white-space:pre;line-height:1.2" id="jsonDiffOutputRight" onmouseenter="activeDiffElem=this" onscroll="activeDiffElem===this && (jsonDiffOutputLeft .scrollTop=this.scrollTop,jsonDiffOutputLeft .scrollLeft=this.scrollLeft)"></div>
+                <div class="output bg-sec" style="white-space:pre;line-height:1.2;padding:2px" id="jsonDiffOutputLeft"  onmouseenter="activeDiffElem=this" onscroll="activeDiffElem===this && (jsonDiffOutputRight.scrollTop=this.scrollTop,jsonDiffOutputRight.scrollLeft=this.scrollLeft)"></div>
+                <div class="output bg-sec" style="white-space:pre;line-height:1.2;padding:2px" id="jsonDiffOutputRight" onmouseenter="activeDiffElem=this" onscroll="activeDiffElem===this && (jsonDiffOutputLeft .scrollTop=this.scrollTop,jsonDiffOutputLeft .scrollLeft=this.scrollLeft)"></div>
             </div>
             <script>
 function jsonDiff() {
@@ -1937,8 +1947,7 @@ function jsonDiff() {
             const out = {};
             let diff = false;
 
-            for (let i=0; i<keysAllArr.length; ++i) {
-                const key = keysAllArr[i];
+            for (const key of keysAllArr) {
                 if (!keysLeft.has(key)) {
                     out[key] = 'missing-left';
                     diff = true;
@@ -2052,8 +2061,8 @@ function jsonDiff() {
                 if (res.leftStyle) {
                     idString = `jsonDiff${++diffId}`;
                 }
-                leftString  += `${leftString  ? (lastLeft  ? ',' : '') + '\n' : ''}<span ${idString ? 'tabindex="0" class="diff-focus" id="'+idString+'Left"'  : ''} style="font-family:monospace;white-space:pre;${res.leftStyle  || ''}">${res.left }</span>`;
-                rightString += `${rightString ? (lastRight ? ',' : '') + '\n' : ''}<span ${idString ? 'tabindex="0" class="diff-focus" id="'+idString+'Right"' : ''} style="font-family:monospace;white-space:pre;${res.rightStyle || ''}">${res.right}</span>`;
+                leftString  += `${leftString  ? (lastLeft  ? ',' : '') + '\n' : ''}<span ${idString ? 'id="'+idString+'Left"'  : ''} style="font-family:monospace;white-space:pre;${res.leftStyle  || ''}">${res.left }</span>`;
+                rightString += `${rightString ? (lastRight ? ',' : '') + '\n' : ''}<span ${idString ? 'id="'+idString+'Right"' : ''} style="font-family:monospace;white-space:pre;${res.rightStyle || ''}">${res.right}</span>`;
                 lastLeft  = res.left .replaceAll(/(\&nbsp;|\s)*/g, '');
                 lastRight = res.right.replaceAll(/(\&nbsp;|\s)*/g, '');
             }
@@ -2076,8 +2085,7 @@ function jsonDiff() {
 
             const indentationStringNext = Array((indentation+1)*4).fill('&nbsp;').join('');
 
-            for (let i=0; i<keysAllArr.length; ++i) {
-                const key=keysAllArr[i];
+            for (const key of keysAllArr) {
                 const res = printDiff(left[key], right[key], diff[key], indentation+1);
 
                 let idString = '';
@@ -2090,7 +2098,7 @@ function jsonDiff() {
 
                 leftString  += `${
                     leftString  ? (lastLeft  ? ',' : '') + '\n' : ''
-                }<span ${idString ? 'tabindex="0" class="diff-focus" id="'+idString+'Left"'  : ''} style="font-family:monospace;white-space:pre;${
+                }<span ${idString ? 'id="'+idString+'Left"'  : ''} style="font-family:monospace;white-space:pre;${
                     res.leftStyle  || ''
                 }">${
                     newLeft  ? indentationStringNext + safeEscape(JSON.stringify(key)) + ': ' + res.left .replace(/^(\&nbsp;)*/, '') : (res.left || indentationStringNext)
@@ -2098,7 +2106,7 @@ function jsonDiff() {
 
                 rightString += `${
                     rightString ? (lastRight ? ',' : '') + '\n' : ''
-                }<span ${idString ? 'tabindex="0" class="diff-focus" id="'+idString+'Right"' : ''} style="font-family:monospace;white-space:pre;${
+                }<span ${idString ? 'id="'+idString+'Right"' : ''} style="font-family:monospace;white-space:pre;${
                     res.rightStyle || ''
                 }">${
                     newRight ? indentationStringNext + safeEscape(JSON.stringify(key)) + ': ' + res.right.replace(/^(\&nbsp;)*/, '') : (res.right || indentationStringNext)
