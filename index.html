@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="color-scheme" content="dark light">
@@ -263,13 +263,13 @@ input[type="file"] {
     </style>
 </head>
 <body class="bg">
-    <div class="main">
+    <main role="main" class="main">
         <div style="height: 5rem"></div>
         <input class="tab-opt" type="radio" id="ascii-table" name="main-nav" value="ascii-table" checked />
         <input class="tab-opt" type="radio" id="base64" name="main-nav" value="base64" />
         <input class="tab-opt" type="radio" id="json" name="main-nav" value="json" />
         <input class="tab-opt" type="radio" id="other" name="main-nav" value="other" />
-        <nav class="main-nav">
+        <nav class="main-nav" role="navigation">
             <label for="ascii-table">ASCII Table</label>
             <label for="base64">Base64</label>
             <label for="json">JSON</label>
@@ -2137,6 +2137,6 @@ function jsonDiff() {
             other
         </div>
         <div style="height:10rem"></div>
-    </div>
+    </main>
 </body>
 </html>
